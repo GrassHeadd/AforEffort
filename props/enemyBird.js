@@ -29,7 +29,6 @@ export class enemyBird {
   
       if (GLOBALS.char.x + GLOBALS.char.width > x && GLOBALS.char.x < x + this.size) {
         if (GLOBALS.char.y + GLOBALS.char.height > this.y && GLOBALS.char.y < this.y + this.size) {
-          console.log("CRASH");
           if (this.hasCollided == false) {
             this.hasCollided = true;
             GLOBALS.lives -= 1;

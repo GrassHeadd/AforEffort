@@ -6,6 +6,10 @@ import { generateRandomNumberBetween } from "./utilities/number.js";
 import {Score} from "./props/score.js"
 import { gameOverText } from "./constants/screen.js";
 
+// Fetch and update score element
+const scoreElement = document.getElementById('score');
+let currentHighScore = localStorage.getItem("highScore");
+scoreElement.textContent = currentHighScore == null ? 0 : currentHighScore;
 
 // Desired frame rate
 const FPS = 60;
@@ -26,7 +30,7 @@ export const GLOBALS = {
   char: { x: 0, y: 0, width: 50, height: 50 }, 
   startScreen: true,
   isPlaying: false,
-  lives: 2,
+  lives: 3,
   currentScore: 0,
 }
 
@@ -62,7 +66,7 @@ function init() {
           while (PROPS.length) {
             PROPS.pop();
           }
-          GLOBALS.lives = 2;
+          GLOBALS.lives = 3;
           GLOBALS.isPlaying = true;
         }
         GLOBALS.startScreen = false;
@@ -143,7 +147,8 @@ function startFrames(currentTime) {
         addPillarObject();
       }
       
-      if (time % 80 === 0 && GLOBALS.currentScore >= 5) {
+      
+      if (time % Math.max((80 - Math.floor(GLOBALS.currentScore / 2)), 5) === 0 && GLOBALS.currentScore >= 5) {
         addEnemyBird();
       }
     }
@@ -160,7 +165,6 @@ function startFrames(currentTime) {
                 bullet.y < prop.y + prop.size &&
                 bullet.y + bullet.size > prop.y
               ) {
-                console.log("Bullet hit enemy bird!");
                 prop.die(); 
                 char.bullets.splice(bulletIndex, 1); 
                 GLOBALS.currentScore += 1;
@@ -177,40 +181,32 @@ function startFrames(currentTime) {
       }
     });
 
-
     if (GLOBALS.lives <= 0) {
       gameFailed();
     }
-
 }
-
   // Request the next animation frame
   window.requestAnimationFrame(startFrames);
-
 }
-
 
 init(); // initialize game settings
 window.requestAnimationFrame(startFrames); 
 
 function addPillarObject() {
   const zValue = generateRandomNumberBetween(30, screenHeight - 200);
-  console.log(zValue)
   PROPS.push(new pillar(20, zValue, "brown"))
 }
 
 function addEnemyBird() {
   const y = Math.random() * canvas.height;
-  console.log(y)
   PROPS.push(new enemyBird(y))
 }
 
 function gameFailed() {
   GLOBALS.isPlaying = false;
+  updateHighScore(GLOBALS.currentScore);
   GLOBALS.currentScore = 0;
   renderFailedScreen();
-  
-  // renderStartScreen();
 }
 
 function renderFailedScreen() {
@@ -219,9 +215,17 @@ function renderFailedScreen() {
   ctx.fillStyle = "black";
   ctx.textAlign = "center";
   ctx.fillText(gameOverText , (screenWidth / 2), (screenHeight / 2));
-
   ctx.beginPath();
   ctx.font = "18px Arial";
   ctx.fillStyle = "black";
   ctx.fillText("Press enter to restart", screenWidth / 2, screenHeight / 2 + 50);
+}
+
+function updateHighScore(score) {
+  if (currentHighScore == null || score >= currentHighScore) {
+    console.log(score);
+    scoreElement.textContent = score;
+    currentHighScore = score;
+    localStorage.setItem("highScore", score);
+  }
 }

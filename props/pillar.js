@@ -35,15 +35,12 @@ export class pillar {
         // Collision detection
         if (GLOBALS.char.x + GLOBALS.char.width > x && GLOBALS.char.x < x + this.size) {
             if (GLOBALS.char.y < this.topPillarSize ||GLOBALS.char.y + GLOBALS.char.height > this.yBottom) {
-                console.log("CRASH");
                 if (this.hasCollided == false) {
-                    console.log("recording crash");
                     this.hasCollided = true;
                     GLOBALS.lives -= 1;
                 }
             } else {
                 if (this.hasCountedScore == false) {
-                    console.log("recording score");
                     GLOBALS.currentScore++;
                     this.hasCountedScore = true;
                 }

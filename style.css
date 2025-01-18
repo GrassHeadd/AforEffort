@@ -8,6 +8,14 @@ body {
   font-size: 24px;
 }
 
+body p {
+  line-height: 0.5;
+}
+
+#highScore {
+  font-size: 18px;
+}
+
 canvas {
   border: solid;
   margin: auto;
@@ -36,8 +44,13 @@ footer .footer-content {
   margin: 0 auto;
 }
 
+#survive {
+  color: #c40805;
+  font-size: 28px;
+}
+
 footer p {
-  font-size: 12px;
+  font-size: 16px;
   margin: 0;
   font-weight: bold;
 }
@@ -50,6 +63,7 @@ footer ul {
 
 footer ul a {
   font-size: 16px;
-  margin: 5px 0;
+  display: block;
+  margin: 10px 5px;
   line-height: 0.5;
 }
