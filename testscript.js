@@ -223,7 +223,6 @@ function renderFailedScreen() {
 
 function updateHighScore(score) {
   if (currentHighScore == null || score >= currentHighScore) {
-    console.log(score);
     scoreElement.textContent = score;
     currentHighScore = score;
     localStorage.setItem("highScore", score);
