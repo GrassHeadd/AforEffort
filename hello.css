@@ -1,0 +1,17 @@
+body {
+    background-color: #C6E7FF;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 16px;
+    text-align: center;
+    display: block;
+}
+
+header {
+    margin: 20%;
+}
+
+.image {
+    width: 50%;
+    height: 50%;
+    margin: 10%;
+}

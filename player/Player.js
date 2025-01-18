@@ -11,7 +11,7 @@ export class Player {
         this.size = size;
         this.offset = 200;
         this.speed = 0;
-        this.gravity = 0.5;
+        this.gravity = 0.4;
         this.bullets = [];
         GLOBALS.char.width = this.size;
         GLOBALS.char.height = this.size;
@@ -24,11 +24,15 @@ export class Player {
     // Add a render method to draw the square
     render() {
         this.offset += this.speed;
-        this.speed -= 0.5;
+        this.speed -= this.gravity;
 
-
-        if (this.offset < 0) {
+        if (this.y - this.offset < 0) {
+            this.offset = this.y;
+            this.speed = 0;
+        }
+        else if (this.offset < 0) {
             this.offset = 0;
+            this.speed = 0;
         }
 
         let y = this.y - this.offset;
@@ -37,7 +41,7 @@ export class Player {
         ctx.drawImage(this.image, this.x, y, this.size, this.size);
         ctx.beginPath();
         ctx.fill();
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 5;
         ctx.strokeStyle = "black"; // Border color
         ctx.stroke();
 

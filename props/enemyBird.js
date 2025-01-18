@@ -6,11 +6,11 @@ export class enemyBird {
   constructor(y) {
     this.x = 800; // X-coordinate of the top-left corner
     this.y = y; // Y-coordinate of the top-left corner
-    this.size = 50; // Size of the square
+    this.size = 30; // Size of the square
     this.offset = 0;
-    this.speed = generateRandomNumberBetween(1, 4);
+    this.speed = generateRandomNumberBetween(2, 4);
     this.isDead = false;
-
+    this.hasCollided = false;
     this.image = new Image();
     this.image.src = "../assets/enemyBirdImage.png";
   }
@@ -37,7 +37,6 @@ export class enemyBird {
         }
       }
     }
-
   }
   
   die() {

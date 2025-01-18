@@ -13,15 +13,16 @@ export class pillar {
         this.size = size; // Width of the pillar (contant value = 20)
         this.color = color; // Fill color of the square
         this.offset = 0;
+        this.speed = 2;
         this.hasCollided = false;
+        this.hasCountedScore = false;
     }
   
     
     // Add a render method to draw the square
     render() {
-        this.offset -= 2;
+        this.offset -= this.speed;
         let x = this.x + this.offset;
-        
         ctx.beginPath();
         ctx.rect(x, this.y, this.size, this.topPillarSize); // top pillar
         ctx.rect(x, this.yBottom, this.size, screenHeight - this.yBottom);    // bottom pillar
@@ -33,17 +34,20 @@ export class pillar {
 
         // Collision detection
         if (GLOBALS.char.x + GLOBALS.char.width > x && GLOBALS.char.x < x + this.size) {
-            if (GLOBALS.char.y + GLOBALS.char.height <= this.topPillarSize || GLOBALS.char.y > this.yBottom) {
+            if (GLOBALS.char.y < this.topPillarSize ||GLOBALS.char.y + GLOBALS.char.height > this.yBottom) {
                 console.log("CRASH");
                 if (this.hasCollided == false) {
+                    console.log("recording crash");
                     this.hasCollided = true;
                     GLOBALS.lives -= 1;
                 }
             } else {
-                GLOBALS.currentScore += 1;
+                if (this.hasCountedScore == false) {
+                    console.log("recording score");
+                    GLOBALS.currentScore++;
+                    this.hasCountedScore = true;
+                }
             }
-        }
+        } 
     }
-
-
 }

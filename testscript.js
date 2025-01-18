@@ -3,6 +3,9 @@ import { enemyBird } from "./props/enemyBird.js";
 import {pillar} from "./props/pillar.js"
 import { screenHeight, screenWidth } from "./constants/screen.js";
 import { generateRandomNumberBetween } from "./utilities/number.js";
+import {Score} from "./props/score.js"
+import { gameOverText } from "./constants/screen.js";
+
 
 // Desired frame rate
 const FPS = 60;
@@ -15,26 +18,28 @@ export const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 450;
 
+// Text width
+const textWidth = ctx.measureText(gameOverText).width;
+
 // object for storing globally accessable states
 export const GLOBALS = {
   char: { x: 0, y: 0, width: 50, height: 50 }, 
-  failed: false,
-  lives: 3,
+  startScreen: true,
+  isPlaying: false,
+  lives: 2,
   currentScore: 0,
 }
-
 
 // Array where all props will be stored
 const PROPS = [];
 
-
 // Array where all characters will be stored
 const CHARS = [];
-CHARS.push(new Player(50, canvas.height - 20, 20, "red"));
-
+CHARS.push(new Player(50, canvas.height - 40, 40, "red"));
 
 // function for applying any initial settings
 function init() {
+  
   // add event listener for space bar to call jump for player objects only
   document.addEventListener("keydown", function(event) {
   if (event.code === "KeyE") {
@@ -51,15 +56,26 @@ function init() {
       }
     })
   }
+  
+  if (event.code === "Enter") {
+        if (GLOBALS.startScreen == false && GLOBALS.isPlaying == false) {
+          while (PROPS.length) {
+            PROPS.pop();
+          }
+          GLOBALS.lives = 2;
+          GLOBALS.isPlaying = true;
+        }
+        GLOBALS.startScreen = false;
+        GLOBALS.isPlaying = true;
+    }
   });
-
-
 }
 
 // function for rendering background elements
 function renderBackground() {
-  ctx.fillStyle = "lightblue";//
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const backgroundImage = new Image();
+  backgroundImage.src = "./assets/background4.jpg";
+  ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 }
 
 // function for rendering prop objects in PROPS
@@ -74,12 +90,30 @@ function renderCharacters() {
 
 function renderControls() {
   //draw lives
+  ctx.beginPath();
+  ctx.fillStyle = "red";
   ctx.font = "20px Arial";
-  ctx.fillText("Lives: " + GLOBALS.lives, 10, 30);
+  ctx.fillText("Lives: " + GLOBALS.lives, 40, 30);
 
   //draw score
-  // ctx.fillText("Score: " + GLOBALS.currentScore, 10, 30);
+  ctx.beginPath();
+  ctx.fillStyle = "red";
+  ctx.font = "30px Copperplate";
+  ctx.fillText("" + GLOBALS.currentScore, screenWidth/2, 50);
 
+}
+
+function renderStartScreen() {
+  renderBackground();
+
+  ctx.beginPath();
+  ctx.font = "40px Arial";
+  ctx.fillStyle = "black";
+  ctx.textAlign = "center";
+  ctx.fillText("Press Enter to Start", canvas.width / 2, canvas.height / 2);
+
+  ctx.font = "20px Arial";
+  ctx.fillText("Use 'E' to Jump and 'F' to Fire", canvas.width / 2, canvas.height / 2 + 40);
 }
 
 // main function to be run for rendering frames
@@ -92,32 +126,27 @@ function startFrames(currentTime) {
   if (deltaTime >= frameInterval) {
     lastFrameTime = currentTime;
 
-    // // Check for failure
-    // if (GLOBALS.failed) {
-    //   while (PROPS.length) {
-    //     PROPS.pop();
-    //   }
-    //   GLOBALS.failed = false;
-    
-    // Erase the entire canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     // Render each type of entity in order, relative to layers
-    renderBackground();
-    renderProps();
-    renderCharacters();
-    renderControls();
+    if (GLOBALS.startScreen) {
+      renderStartScreen();
+    } else if (GLOBALS.isPlaying) {
+      // Erase the entire canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    time++;
-    if (time % 100 === 0) {
-      addPillarObject();
+      renderBackground();
+      renderProps();
+      renderCharacters();
+      renderControls();
+  
+      time++;
+      if (time % 100 === 0) {
+        addPillarObject();
+      }
+      
+      if (time % 80 === 0 && GLOBALS.currentScore >= 5) {
+        addEnemyBird();
+      }
     }
-    if (time % 80 === 0) {
-      addEnemyBird();
-    }
-
- 
-    
 
     // Check for collisions between bullets and enemy birds
     PROPS.forEach((prop, index) => {
@@ -134,6 +163,7 @@ function startFrames(currentTime) {
                 console.log("Bullet hit enemy bird!");
                 prop.die(); 
                 char.bullets.splice(bulletIndex, 1); 
+                GLOBALS.currentScore += 1;
               }
             });
           }
@@ -146,6 +176,11 @@ function startFrames(currentTime) {
         PROPS.splice(index, 1);
       }
     });
+
+
+    if (GLOBALS.lives <= 0) {
+      gameFailed();
+    }
 
 }
 
@@ -161,11 +196,32 @@ window.requestAnimationFrame(startFrames);
 function addPillarObject() {
   const zValue = generateRandomNumberBetween(30, screenHeight - 200);
   console.log(zValue)
-  PROPS.push(new pillar(20, zValue, "red"))
+  PROPS.push(new pillar(20, zValue, "brown"))
 }
 
 function addEnemyBird() {
-  const y = Math.random() * 180;
+  const y = Math.random() * canvas.height;
   console.log(y)
   PROPS.push(new enemyBird(y))
+}
+
+function gameFailed() {
+  GLOBALS.isPlaying = false;
+  GLOBALS.currentScore = 0;
+  renderFailedScreen();
+  
+  // renderStartScreen();
+}
+
+function renderFailedScreen() {
+  ctx.beginPath();
+  ctx.font = "30px Arial";
+  ctx.fillStyle = "black";
+  ctx.textAlign = "center";
+  ctx.fillText(gameOverText , (screenWidth / 2), (screenHeight / 2));
+
+  ctx.beginPath();
+  ctx.font = "18px Arial";
+  ctx.fillStyle = "black";
+  ctx.fillText("Press enter to restart", screenWidth / 2, screenHeight / 2 + 50);
 }
